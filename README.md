@@ -1,21 +1,16 @@
 # pandas-type-widener
 
 > [!WARNING]
-> This is a **work in progress**, and I built it very, very quickly by having Claude write the code for me. I haven't
-> read every line of it, and I haven't yet had the chance to explore it properly myself. It might look good (IDK),
-> but it has not been drive-tested in any meaningful sense of the word. Claims about functionality in this README
-> should be considered probable at best, and aspirational at worst.
-> Use at your own caution (whilst this warning is still up. I'll get rid of it once I'm confident in the codebase).
-> P.S - This is not completely unread AI nonsense. The idea is mine, and some real engineering thought went into
-> the design before any code was written: finding calls at runtime instead of parsing tests, judging the call
-> separately from the test's own assertions, and keeping the test's values so only the dtype changes. But be warned
-> that when you go this fast, things get missed and/or overlooked.
+> This is an **experiment**. I had the idea and talked the overall approach through with Claude, then had Claude
+> write essentially all of it, very quickly. I haven't read the code, and I haven't really used it yet. It might
+> look good (IDK), but it has not been drive-tested in any meaningful sense of the word. Claims about functionality
+> in this README should be considered aspirational.
+> Use at your own caution (whilst this warning is still up).
 
 > [!NOTE]
 > **This is not a pandas project.** It isn't affiliated with, endorsed by, or supported by pandas or its
-> maintainers. It just probes code that takes pandas objects. It also isn't really a *package* yet, despite looking
-> like one: it's closer to an LLM-assisted, unusually deep proof of concept that I'm using to find out whether the
-> idea holds up.
+> maintainers. It just probes code that takes pandas objects. It also isn't really a *package*, despite looking
+> like one: it's an LLM-built prototype to find out whether the idea is worth pursuing.
 
 A pytest plugin that finds out which pandas dtypes a library **really** accepts, using
 the test suite you already have.
