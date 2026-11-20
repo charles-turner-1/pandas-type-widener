@@ -1,5 +1,22 @@
 # pandas-type-widener
 
+> [!WARNING]
+> This is an **early work in progress**, and the implementation is almost entirely written by Claude.
+> The idea is mine: I've used libraries that take DataFrames without ever saying which dtypes they
+> support, and I wanted a way to find out from their own test suites. The design was argued out
+> between me and Claude before any code existed: discovering calls at runtime rather than parsing
+> tests, judging the call separately from the test's assertions, and keeping the test's values while
+> changing only the dtype. But I haven't written the code myself, and I haven't reviewed every line
+> of it yet. Claims about functionality may be overstated.
+> Use at your own risk while this warning is up. I'll take it down once I've been through the codebase
+> properly and trust it.
+> P.S. This is not unread AI nonsense. I'm steering it closely. But when you go this fast, things get
+> missed and/or overlooked.
+
+> [!NOTE]
+> **This is not a pandas project.** It isn't affiliated with, endorsed by, or supported by pandas or
+> its maintainers. It just probes code that takes pandas objects.
+
 A pytest plugin that finds out which pandas dtypes a library **really** accepts, using
 the test suite you already have.
 
