@@ -1,21 +1,21 @@
 # pandas-type-widener
 
 > [!WARNING]
-> This is an **early work in progress**, and the implementation is almost entirely written by Claude.
-> The idea is mine: I've used libraries that take DataFrames without ever saying which dtypes they
-> support, and I wanted a way to find out from their own test suites. The design was argued out
-> between me and Claude before any code existed: discovering calls at runtime rather than parsing
-> tests, judging the call separately from the test's assertions, and keeping the test's values while
-> changing only the dtype. But I haven't written the code myself, and I haven't reviewed every line
-> of it yet. Claims about functionality may be overstated.
-> Use at your own risk while this warning is up. I'll take it down once I've been through the codebase
-> properly and trust it.
-> P.S. This is not unread AI nonsense. I'm steering it closely. But when you go this fast, things get
-> missed and/or overlooked.
+> This is a **work in progress**, and I built it very, very quickly by having Claude write the code for me. I haven't
+> read every line of it, and I haven't yet had the chance to explore it properly myself. It might look good (IDK),
+> but it has not been drive-tested in any meaningful sense of the word. Claims about functionality in this README
+> should be considered probable at best, and aspirational at worst.
+> Use at your own caution (whilst this warning is still up. I'll get rid of it once I'm confident in the codebase).
+> P.S - This is not completely unread AI nonsense. The idea is mine, and some real engineering thought went into
+> the design before any code was written: finding calls at runtime instead of parsing tests, judging the call
+> separately from the test's own assertions, and keeping the test's values so only the dtype changes. But be warned
+> that when you go this fast, things get missed and/or overlooked.
 
 > [!NOTE]
-> **This is not a pandas project.** It isn't affiliated with, endorsed by, or supported by pandas or
-> its maintainers. It just probes code that takes pandas objects.
+> **This is not a pandas project.** It isn't affiliated with, endorsed by, or supported by pandas or its
+> maintainers. It just probes code that takes pandas objects. It also isn't really a *package* yet, despite looking
+> like one: it's closer to an LLM-assisted, unusually deep proof of concept that I'm using to find out whether the
+> idea holds up.
 
 A pytest plugin that finds out which pandas dtypes a library **really** accepts, using
 the test suite you already have.
