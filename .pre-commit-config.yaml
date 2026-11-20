@@ -1,0 +1,36 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: 'v0.12.10'
+    hooks:
+      - id: ruff
+        args: ['--fix']
+
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        language_version: python3
+
+  - repo: https://github.com/numpy/numpydoc
+    rev: 'v1.10.0'
+    hooks:
+      - id: numpydoc-validation
+        name: numpydoc-validation
+        # Checks docstring *content* against signatures (every parameter documented, in
+        # order; a Returns section where a value comes back): the half that ruff's D
+        # rules leave open. The check list is [tool.numpydoc_validation] in pyproject.toml.
+        files: ^src/pandas_type_widener/
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.17.1'
+    hooks:
+      - id: mypy
+        # Type-check the whole package via [tool.mypy], in pre-commit's own venv (so the
+        # CI pre-commit job needs no pixi). additional_dependencies carries the imports
+        # mypy has to follow.
+        args: [src]
+        pass_filenames: false
+        additional_dependencies:
+          - hypothesis
+          - numpy
+          - pytest
