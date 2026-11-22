@@ -195,6 +195,8 @@ class DtypeSpec:
         Whether the dtype can hold missing values.
     caster : callable, optional
         Custom cast; default ``series.astype(dtype)``.
+    reshape : callable, optional
+        Applied to drawn values before building a column from them.
     """
 
     name: str
@@ -203,6 +205,7 @@ class DtypeSpec:
     elements: st.SearchStrategy[Any]
     nullable: bool = True
     caster: Callable[[pd.Series], pd.Series] | None = None
+    reshape: Callable[[Sequence[Any]], list[Any]] | None = None
 
     def cast(self, series: pd.Series) -> pd.Series | None:
         """Convert a column to this dtype, keeping its values where possible.
@@ -247,7 +250,8 @@ class DtypeSpec:
         """
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            return pd.Series(list(values), dtype=self.dtype, index=index, name=name)
+            cells = self.reshape(values) if self.reshape else list(values)
+            return pd.Series(cells, dtype=self.dtype, index=index, name=name)
 
 
 def _as_str(series: pd.Series, dtype: Any) -> pd.Series:
@@ -255,10 +259,31 @@ def _as_str(series: pd.Series, dtype: Any) -> pd.Series:
     return pd.Series(values, dtype=dtype, index=series.index, name=series.name)
 
 
+def _mix(values: Sequence[Any]) -> list[Any]:
+    """Make every other value a different kind from the rest, so the column really is mixed.
+
+    Values at even positions set the kind. If the first one present is a string, the odd
+    positions become non-strings (a string becomes its length); otherwise they become
+    strings. Changing the type of every other value isn't enough on its own, because
+    ``[None, 3, "a"]`` would come out as all strings.
+    """
+    out = list(values)
+    anchor = next((v for v in out[0::2] if not is_missing(v)), None)
+    want_str = not isinstance(anchor, str)
+    for i in range(1, len(out), 2):
+        value = out[i]
+        if is_missing(value):
+            continue
+        if want_str and not isinstance(value, str):
+            out[i] = str(value)
+        elif not want_str and isinstance(value, str):
+            out[i] = len(value)
+    return out
+
+
 def _mixed(series: pd.Series) -> pd.Series:
-    """Keep the values, but make every other one a string: genuinely mixed types."""
-    values = [str(v) if i % 2 else v for i, v in enumerate(series)]
-    return pd.Series(values, dtype=object, index=series.index, name=series.name)
+    """Keep the values, but change the type of every other one."""
+    return pd.Series(_mix(series), dtype=object, index=series.index, name=series.name)
 
 
 def _categorical_of_str(series: pd.Series) -> pd.Series:
@@ -493,6 +518,7 @@ def default_grid() -> list[DtypeSpec]:
                 st.booleans(),
             ),
             caster=_mixed,
+            reshape=_mix,
         ),
     ]
     if _has_pyarrow():

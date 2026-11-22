@@ -213,13 +213,16 @@ class Axis:
         if self.kind == "series":
             if len(replacement) != len(value):
                 raise ValueError("series length changed")
-            return pd.Series(replacement.array, index=value.index, name=value.name)
+            return replacement.set_axis(value.index).rename(value.name)
         columns = {self.position: replacement} if self.kind == "column" else replacement
         new = value.copy()
         for position, column in columns.items():
             if len(column) != len(new) or position >= new.shape[1]:
                 raise ValueError("frame shape changed")
-            new.isetitem(position, column.array)
+            # Pass a Series with the frame's own index, not ``column.array``: pandas 3
+            # re-infers a bare object array of strings as ``str``, which would quietly
+            # turn an ``object[str]`` cell into a second ``str`` cell.
+            new.isetitem(position, column.set_axis(new.index))
         return new
 
 

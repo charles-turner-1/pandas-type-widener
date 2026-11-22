@@ -119,3 +119,21 @@ def test_str_spec_present_on_new_pandas():
     except TypeError:
         pytest.skip("pandas < 2.3")
     assert "str" in UNIVERSE
+
+
+@pytest.mark.parametrize(
+    "values",
+    [["a", "b", "c"], [1, 2, 3], [1.5, None, "x", True]],
+    ids=["str", "int", "any"],
+)
+def test_mixed_is_mixed_whatever_it_starts_from(values):
+    """``object[mixed]`` columns hold more than one type, by cast or by build."""
+    by_name = {s.name: s for s in GRID}
+    spec = by_name["object[mixed]"]
+    assert (
+        describe_series(spec.cast(pd.Series(values, dtype=object))) == "object[mixed]"
+    )
+    assert (
+        describe_series(spec.build(values, pd.RangeIndex(len(values)), "a"))
+        == "object[mixed]"
+    )

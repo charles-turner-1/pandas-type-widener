@@ -1,11 +1,12 @@
 """The probe engine against toylib's known contracts, without pytest in the loop."""
 
 import pandas as pd
+import pytest
 
 import toylib
 from pandas_type_widener import runtime
 from pandas_type_widener.dtypes import default_grid, index_grid
-from pandas_type_widener.probe import Prober, axes
+from pandas_type_widener.probe import Axis, Prober, axes
 from pandas_type_widener.report import render, summarise
 from pandas_type_widener.targets import Installer, resolve
 
@@ -253,3 +254,25 @@ def test_example_budget_respected():
     int64 = next(s for s in default_grid() if s.name == "int64")
     list(Prober([int64], [], examples=7).probe(site))
     assert 2 <= len(tried) <= 1 + 7  # the baseline, then at most the budget
+
+
+@pytest.mark.parametrize("spec", default_grid(), ids=lambda s: s.name)
+@pytest.mark.parametrize("kind", ["column", "series"])
+def test_apply_delivers_the_spec_dtype(spec, kind):
+    """What reaches the target has the dtype the cell is named for.
+
+    pandas 3 re-infers a bare object array of strings as ``str`` on assignment, so a
+    careless ``apply`` would report ``object[str]`` cells that never held an object column.
+    """
+    from pandas_type_widener.dtypes import describe_series
+
+    df = pd.DataFrame(
+        {"a": [1, 2, 3], "b": [4, 5, 6]}, index=[3, 3, 7]
+    )  # duplicate labels too
+    cast = spec.cast(df["a"])
+    if kind == "column":
+        out = Axis("column", "int64", 0, "a").apply(df, cast)["a"]
+    else:
+        out = Axis("series", "int64").apply(df["a"], cast)
+    assert describe_series(out) == spec.name
+    assert list(out.index) == [3, 3, 7]
